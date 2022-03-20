@@ -8,6 +8,7 @@ const Home = () => {
   const [allheading, setAllHeading] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [searchInput, setSearchInput] = useState({});
 
   const fetchData = async () => {
     try {
@@ -26,20 +27,18 @@ const Home = () => {
 
   const heading = [];
   const objectKeys = [];
+  const searchable = [];
   allheading.map((head) => {
     Object.entries(head).forEach(([key, value]) => {
       if (!head[key].hidden) {
         heading.push(head[key]);
         objectKeys.push(key);
+        if (head[key].searchable) {
+          searchable.push(key);
+        }
       }
     });
   });
-
-  const objectValue = (row, h) => {
-    Object.entries(row).forEach(() => {
-      return row[h];
-    });
-  };
 
   const transFormData = (rows, objectKeys) => {
     const newData = [];
@@ -64,7 +63,33 @@ const Home = () => {
     return newData;
   };
 
-  const newData = transFormData(rows, objectKeys);
+  var newData = transFormData(rows, objectKeys);
+
+  const searchData = (newData) => {
+    if (Object.keys(searchInput).length === 0) {
+      return newData;
+    }
+    const searchedKey = Object.keys(searchInput);
+
+    searchedKey.forEach((key) => {
+      if (searchInput[key].length > 0) {
+        newData = newData.filter((d) => {
+          let flag = false;
+          if (
+            String(d[key])
+              .toLowerCase()
+              .includes(String(searchInput[key]))
+          ) {
+            flag = true;
+          }
+          return flag;
+        });
+      }
+    });
+    return newData;
+  };
+
+  newData = searchData(newData);
 
   useEffect(() => {
     fetchData();
@@ -73,6 +98,21 @@ const Home = () => {
   return (
     <div className="py-5">
       <Container>
+        <div className="d-flex">
+          {searchable.map((k) => (
+            <input
+              key={k}
+              placeholder={k}
+              name={k}
+              onChange={(e) =>
+                setSearchInput({
+                  ...searchInput,
+                  [e.target.name]: e.target.value,
+                })
+              }
+            />
+          ))}
+        </div>
         <Table responsive>
           <thead>
             <tr>
