@@ -15,6 +15,7 @@ const SubmitForm = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [fields, setFields] = useState([]);
+  const [fieldData, setFieldData] = useState({});
 
   const fetchData = async () => {
     try {
@@ -68,6 +69,27 @@ const SubmitForm = () => {
 
   const newFieldList = transFormFieldsData(fields);
 
+  const handleSubmission = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post(
+        "http://localhost/api/submit_form.php",
+        fieldData,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          },
+        }
+      );
+      console.log(response);
+    } catch (error) {
+      console.log();
+    }
+
+    console.log(fieldData);
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -75,10 +97,10 @@ const SubmitForm = () => {
   return (
     <Container>
       <h1> Get Form</h1>
-      <Form>
+      <Form onSubmit={handleSubmission}>
         {newFieldList.map((field) => (
           <FormGroup key={field.title}>
-            <Label for="exampleEmail">{field.title}</Label>
+            <Label>{field.title}</Label>
             {field.type === "select" ? (
               <Input
                 id={field.id}
@@ -86,6 +108,13 @@ const SubmitForm = () => {
                 type={field.type}
                 defaultValue={field.defaultValue}
                 required={field.required}
+                name={field.title.toLowerCase()}
+                onChange={(e) =>
+                  setFieldData({
+                    ...fieldData,
+                    [e.target.name]: e.target.value,
+                  })
+                }
               >
                 {field.options.map((op) => (
                   <option key={op.key} value={op.key}>
@@ -101,13 +130,27 @@ const SubmitForm = () => {
                     type={field.type}
                     value={r.key}
                     checked={field.default == r.key}
-                    onChange={(e) => console.log(e.target.checked)}
+                    onChange={(e) =>
+                      setFieldData({
+                        ...fieldData,
+                        [e.target.name]: e.target.value,
+                      })
+                    }
                     name="radio"
                   />
                 </div>
               ))
             ) : (
-              <Input {...field}></Input>
+              <Input
+                {...field}
+                name={field.title.toLowerCase()}
+                onChange={(e) =>
+                  setFieldData({
+                    ...fieldData,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              ></Input>
             )}
           </FormGroup>
         ))}
