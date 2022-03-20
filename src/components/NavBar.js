@@ -20,7 +20,7 @@ const NavBar = () => {
           <Collapse navbar>
             <Nav className="me-auto" navbar>
               <NavItem>
-                <NavLink href="/components/">Form</NavLink>
+                <NavLink href="/get-form/">Form</NavLink>
               </NavItem>
               <NavItem>
                 <NavLink href="https://github.com/reactstrap/reactstrap">

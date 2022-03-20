@@ -98,20 +98,23 @@ const Home = () => {
   return (
     <div className="py-5">
       <Container>
-        <div className="d-flex">
-          {searchable.map((k) => (
-            <input
-              key={k}
-              placeholder={k}
-              name={k}
-              onChange={(e) =>
-                setSearchInput({
-                  ...searchInput,
-                  [e.target.name]: e.target.value,
-                })
-              }
-            />
-          ))}
+        <div className="mb-3">
+          <h3> Search here</h3>
+          <div className="d-flex justify-content-evenly">
+            {searchable.map((k) => (
+              <input
+                key={k}
+                placeholder={k}
+                name={k}
+                onChange={(e) =>
+                  setSearchInput({
+                    ...searchInput,
+                    [e.target.name]: e.target.value,
+                  })
+                }
+              />
+            ))}
+          </div>
         </div>
         <Table responsive>
           <thead>
