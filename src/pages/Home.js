@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import TableRows from "../components/TableRows";
-import { Table, Container } from "reactstrap";
+import { Table, Container, Spinner } from "reactstrap";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [rows, setRows] = useState([]);
@@ -9,6 +10,9 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [searchInput, setSearchInput] = useState({});
+
+  // const history = useHistory();
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     try {
@@ -28,6 +32,8 @@ const Home = () => {
   const heading = [];
   const objectKeys = [];
   const searchable = [];
+  const searchableHeading = [];
+
   allheading.map((head) => {
     Object.entries(head).forEach(([key, value]) => {
       if (!head[key].hidden) {
@@ -35,10 +41,13 @@ const Home = () => {
         objectKeys.push(key);
         if (head[key].searchable) {
           searchable.push(key);
+          searchableHeading.push(head[key].title);
         }
       }
     });
   });
+
+  // Transform data
 
   const transFormData = (rows, objectKeys) => {
     const newData = [];
@@ -65,6 +74,7 @@ const Home = () => {
 
   var newData = transFormData(rows, objectKeys);
 
+  // Search Funtionality
   const searchData = (newData) => {
     if (Object.keys(searchInput).length === 0) {
       return newData;
@@ -97,40 +107,49 @@ const Home = () => {
 
   return (
     <div className="py-5">
-      <Container>
-        <div className="mb-3">
-          <h3> Search here</h3>
-          <div className="d-flex justify-content-evenly">
-            {searchable.map((k) => (
-              <input
-                key={k}
-                placeholder={k}
-                name={k}
-                onChange={(e) =>
-                  setSearchInput({
-                    ...searchInput,
-                    [e.target.name]: e.target.value,
-                  })
-                }
-              />
-            ))}
+      {isLoading ? (
+        <div className="d-flex h-100 align-item-center justify-content-center">
+          <div className="">
+            {" "}
+            <Spinner>Loading...</Spinner>
           </div>
         </div>
-        <Table responsive>
-          <thead>
-            <tr>
-              {heading.map((head) => (
-                <th key={head.title}> {head.title}</th>
+      ) : (
+        <Container>
+          <div className="mb-3">
+            <h3> Search here</h3>
+            <div className="d-flex justify-content-evenly">
+              {searchable.map((k, i) => (
+                <input
+                  key={k}
+                  placeholder={searchableHeading[i]}
+                  name={k}
+                  onChange={(e) =>
+                    setSearchInput({
+                      ...searchInput,
+                      [e.target.name]: e.target.value,
+                    })
+                  }
+                />
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {newData.map((row, i) => (
-              <TableRows key={i} row={row} objectKeys={objectKeys} />
-            ))}
-          </tbody>
-        </Table>
-      </Container>
+            </div>
+          </div>
+          <Table responsive>
+            <thead>
+              <tr>
+                {heading.map((head) => (
+                  <th key={head.title}> {head.title}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {newData.map((row, i) => (
+                <TableRows key={i} row={row} objectKeys={objectKeys} />
+              ))}
+            </tbody>
+          </Table>
+        </Container>
+      )}
     </div>
   );
 };

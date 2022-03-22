@@ -1,37 +1,30 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormText,
-} from "reactstrap";
+import { Container, Button, Form, FormGroup, Label, Input } from "reactstrap";
 
 import axios from "axios";
+import ReapeterComponent from "../components/ReapeterComponent";
 
 const SubmitForm = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
   const [fields, setFields] = useState([]);
   const [fieldData, setFieldData] = useState({});
+  const [isRepeater, setIsReapeter] = useState(false);
+  const [repList, setRepList] = useState([]);
 
   const fetchData = async () => {
     try {
       const request = await axios.get("http://localhost/api/get_form.php");
-      setIsLoading(false);
+
       setFields(request.data.data.fields);
       console.log(request.data);
       return request.data;
     } catch (error) {
       console.log(error);
-      setIsError(true);
-      setIsLoading(false);
     }
   };
 
   var field_list = [];
+  const repeater_field = [];
+  const repeater_key = [];
 
   const transFormFieldsData = (data) => {
     data.map((d) =>
@@ -57,6 +50,11 @@ const SubmitForm = () => {
           if (f[key].lenght > 0) {
             obj[key] = value;
           }
+        } else if (key === "repeater_fields") {
+          Object.entries(f.repeater_fields).forEach(([key, value]) => {
+            repeater_field.push(value);
+            repeater_key.push(key);
+          });
         } else {
           obj[key] = value;
         }
@@ -68,6 +66,12 @@ const SubmitForm = () => {
   };
 
   const newFieldList = transFormFieldsData(fields);
+
+  const addComponentInput = (e) => {
+    e.preventDefault();
+    setIsReapeter(true);
+    setRepList([...repList, repeater_field]);
+  };
 
   const handleSubmission = async (e) => {
     e.preventDefault();
@@ -124,7 +128,10 @@ const SubmitForm = () => {
               </Input>
             ) : field.type == "radio" ? (
               field.options.map((r, index) => (
-                <div key={String(index)} className="d-flex">
+                <div
+                  key={String(index)}
+                  className="d-flex justify-content-start"
+                >
                   <label>{r.label}</label>
                   <input
                     type={field.type}
@@ -140,6 +147,24 @@ const SubmitForm = () => {
                   />
                 </div>
               ))
+            ) : field.type === "repeater" ? (
+              isRepeater ? (
+                <div>
+                  {repList.map((rf, index) => (
+                    <ReapeterComponent
+                      fieldData={fieldData}
+                      setFieldData={setFieldData}
+                      data={rf}
+                      key={index}
+                    />
+                  ))}
+                  <button onClick={addComponentInput}>add</button>
+                </div>
+              ) : (
+                <div>
+                  <button onClick={addComponentInput}> add</button>
+                </div>
+              )
             ) : (
               <Input
                 {...field}
@@ -154,6 +179,7 @@ const SubmitForm = () => {
             )}
           </FormGroup>
         ))}
+
         <Button>Submit</Button>
       </Form>
     </Container>

@@ -20,12 +20,10 @@ const NavBar = () => {
           <Collapse navbar>
             <Nav className="me-auto" navbar>
               <NavItem>
-                <NavLink href="/get-form/">Form</NavLink>
+                <NavLink href="/get-form/">Submit form </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink href="https://github.com/reactstrap/reactstrap">
-                  Update
-                </NavLink>
+                <NavLink href="/update-form/">Update form</NavLink>
               </NavItem>
             </Nav>
             <NavbarText>Simple Text</NavbarText>
